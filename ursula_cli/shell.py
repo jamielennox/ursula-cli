@@ -372,6 +372,10 @@ def run(args, extra_args):
     if args.ursula_test:
         extra_args += ['--syntax-check', '--list-tasks']
 
+    module_path = './library'
+    if args.module_path:
+        module_path = ':'.join((args.module_path, module_path))
+
     if args.provisioner == "vagrant":
         if os.path.exists('envs/example/vagrant.yml'):
             if os.path.isfile('envs/example/vagrant.yml'):
@@ -405,7 +409,8 @@ def run(args, extra_args):
         if not args.ursula_user:
             args.ursula_user = "root"
     rc = _run_ansible(inventory, args.playbook, extra_args=extra_args,
-                      user=args.ursula_user, sudo=args.ursula_sudo)
+                      user=args.ursula_user, sudo=args.ursula_sudo,
+                      module_path=module_path)
     return rc
 
 
@@ -431,6 +436,9 @@ def main():
                         help='Provision environment in vagrant')
     parser.add_argument('--ursula-sudo', action='store_true',
                         help='Enable sudo')
+    parser.add_argument('--module-path',
+                        default=os.environ.get('ANSIBLE_LIBRARY'),
+                        help='Ansible module path')
 
     args, extra_args = parser.parse_known_args()
     try:
